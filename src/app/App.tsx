@@ -1,119 +1,130 @@
-import { lazy, Suspense } from 'react';
 import React from 'react';
-import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router';
-import { cleanupUrl, handleOAuthCallback } from '@/external/deriv-core';
-import ChunkLoader from '@/components/loader/chunk-loader';
-import LocalStorageSyncWrapper from '@/components/localStorage-sync-wrapper';
-import RoutePromptDialog from '@/components/route-prompt-dialog';
-import { useAccountSwitching } from '@/hooks/useAccountSwitching';
-import { useLanguageFromURL } from '@/hooks/useLanguageFromURL';
-import { StoreProvider } from '@/hooks/useStore';
-import { isPreviewMode, PREVIEW_BASE_PATH } from '@/utils/is-preview-mode';
-import { localize, TranslationProvider } from '@deriv-com/translations';
-import CoreStoreProvider from './CoreStoreProvider';
-import i18nInstance from './i18n';
-import './app-root.scss';
+import classNames from 'classnames';
+import { observer } from 'mobx-react-lite';
+import Text from '@/components/shared_ui/text';
+import { useStore } from '@/hooks/useStore';
+import { localize } from '@deriv-com/translations';
+import { useDevice } from '@deriv-com/ui';
+import OnboardTourHandler from '../tutorials/dbot-tours/onboarding-tour';
+import Announcements from './announcements';
+import Cards from './cards';
+import InfoPanel from './info-panel';
 
-const Layout = lazy(() => import('../components/layout'));
-const AppRoot = lazy(() => import('./app-root'));
-
-/**
- * Component wrapper to handle language URL parameter
- * Uses the useLanguageFromURL hook to process language switching
- */
-const LanguageHandler = ({ children }: { children: React.ReactNode }) => {
-    useLanguageFromURL();
-    return <>{children}</>;
+type TMobileIconGuide = {
+    handleTabChange: (active_number: number) => void;
 };
 
-// The static preview build is served under /bot/preview (see rsbuild.config.ts
-// assetPrefix), so React Router must resolve routes under that prefix. Standalone
-// partner deploys are served at the root, so no basename there.
-const routerBasename = isPreviewMode() ? PREVIEW_BASE_PATH : undefined;
+const DashboardComponent = observer(({ handleTabChange }: TMobileIconGuide) => {
+    const { load_modal, dashboard, client, google_drive } = useStore();
+    const { dashboard_strategies } = load_modal;
+    const { active_tab, is_onboarding_tour_active, setActiveTour } = dashboard;
+    const { isDesktop, isTablet } = useDevice();
+    const has_dashboard_strategies = !!dashboard_strategies?.length;
 
-const router = createBrowserRouter(
-    createRoutesFromElements(
-        <Route
-            path='/'
-            element={
-                <Suspense
-                    fallback={<ChunkLoader message={localize('Please wait while we connect to the server...')} />}
-                >
-                    <TranslationProvider defaultLang='EN' i18nInstance={i18nInstance}>
-                        <LanguageHandler>
-                            <StoreProvider>
-                                <LocalStorageSyncWrapper>
-                                    <RoutePromptDialog />
-                                    <CoreStoreProvider>
-                                        <Layout />
-                                    </CoreStoreProvider>
-                                </LocalStorageSyncWrapper>
-                            </StoreProvider>
-                        </LanguageHandler>
-                    </TranslationProvider>
-                </Suspense>
-            }
-        >
-            {/* All child routes will be passed as children to Layout */}
-            <Route index element={<AppRoot />} />
-            {/* App Builder embeds the template at /preview — render the same app shell */}
-            <Route path='preview' element={<AppRoot />} />
-        </Route>
-    ),
-    { basename: routerBasename }
-);
+    const active_tour = is_onboarding_tour_active ? 'onboarding' : undefined;
 
-/**
- * Main App component
- *
- * Responsibilities:
- * 1. OAuth callback handling (via vendored deriv-core handleOAuthCallback)
- * 2. Account switching from URL (via useAccountSwitching hook)
- * 3. Router provider setup
- */
-function App() {
-    // Handle account switching via URL parameter
-    useAccountSwitching();
+    const strategies = [
+        {
+            title: 'Digit Differs',
+            description: 'High win-rate strategy. Wins if the last digit is not the one you pick (≈90%).',
+        },
+        {
+            title: 'Digit Matches',
+            description: 'High payout strategy. Wins if the last digit matches the one you pick (≈10%).',
+        },
+        {
+            title: 'Dual Rise / Fall',
+            description: 'Places both CALL and PUT at the same time. One side almost always wins.',
+        },
+        {
+            title: 'Even / Odd',
+            description: 'Simple 50/50 digit strategy with solid money management options.',
+        },
+        {
+            title: 'Over / Under',
+            description: 'Predict if the last digit is over or under a barrier you choose.',
+        },
+    ];
 
-    React.useEffect(() => {
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('code')) return;
+    return (
+        <React.Fragment>
+            <div
+                className={classNames('tab__dashboard', {
+                    'tab__dashboard--tour-active': active_tour,
+                })}
+            >
+                <div className='tab__dashboard__content'>
+                    {client.is_logged_in && (
+                        <Announcements is_mobile={!isDesktop} is_tablet={isTablet} handleTabChange={handleTabChange} />
+                    )}
 
-        const handleCallback = async () => {
-            try {
-                const authInfo = await handleOAuthCallback(window.location.href, {
-                    clientId: process.env.NEXT_PUBLIC_DERIV_APP_ID || '',
-                    redirectUri: window.location.origin,
-                    scopes: 'trade',
-                });
+                    {/* STRATEGY CARDS */}
+                    <div style={{ padding: '32px 20px', maxWidth: '1200px', margin: '0 auto' }}>
+                        <h1 style={{ textAlign: 'center', color: '#ffffff', fontSize: '32px', marginBottom: '8px' }}>
+                            AI Strategies
+                        </h1>
+                        <p style={{ textAlign: 'center', color: '#9ca3af', marginBottom: '32px' }}>
+                            All strategies unlocked. Pick one and start trading.
+                        </p>
+                        <div
+                            style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+                                gap: '16px',
+                            }}
+                        >
+                            {strategies.map((s) => (
+                                <div
+                                    key={s.title}
+                                    onClick={() => handleTabChange(1)}
+                                    style={{
+                                        background: '#1f2937',
+                                        border: '1px solid #374151',
+                                        borderRadius: '12px',
+                                        padding: '20px',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <h3 style={{ color: '#ffffff', margin: '0 0 8px', fontSize: '18px' }}>{s.title}</h3>
+                                    <p style={{ color: '#9ca3af', margin: 0, fontSize: '14px' }}>{s.description}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
 
-                const { DerivWSAccountsService } = await import('@/services/derivws-accounts.service');
-                const accounts = await DerivWSAccountsService.fetchAccountsList(authInfo.access_token);
+                    <div className='quick-panel'>
+                        <div
+                            className={classNames('tab__dashboard__header', {
+                                'tab__dashboard__header--listed': isDesktop && has_dashboard_strategies,
+                            })}
+                        >
+                            {!has_dashboard_strategies && (
+                                <div>
+                                    <Text as='h2' size='md' weight='bold' color='prominent' align='center'>
+                                        {localize('Load or build your bot')}
+                                    </Text>
+                                    <Text
+                                        as='p'
+                                        size='sm'
+                                        color='less-prominent'
+                                        align='center'
+                                        className='tab__dashboard__header__subtitle'
+                                    >
+                                        {localize(
+                                            'Import a bot from your computer or Google Drive, or build it from scratch.'
+                                        )}
+                                    </Text>
+                                </div>
+                            )}
+                        </div>
+                        <Cards has_dashboard_strategies={has_dashboard_strategies} />
+                        <InfoPanel />
+                    </div>
+                </div>
+            </div>
+            {active_tour && <OnboardTourHandler setActiveTour={setActiveTour} is_active={!!active_tour} />}
+        </React.Fragment>
+    );
+});
 
-                if (accounts && accounts.length > 0) {
-                    DerivWSAccountsService.storeAccounts(accounts);
-                    const firstAccount = accounts[0];
-                    localStorage.setItem('active_loginid', firstAccount.account_id);
-                    const isDemo =
-                        firstAccount.account_id.startsWith('VRT') || firstAccount.account_id.startsWith('VRTC');
-                    localStorage.setItem('account_type', isDemo ? 'demo' : 'real');
-
-                    const { api_base } = await import('@/external/bot-skeleton');
-                    await api_base.init(true);
-                } else {
-                    console.error('No accounts returned after authentication');
-                }
-            } catch (error) {
-                console.error('OAuth callback error:', error);
-            } finally {
-                cleanupUrl(window.location.origin);
-            }
-        };
-
-        handleCallback();
-    }, []);
-
-    return <RouterProvider router={router} />;
-}
-
-export default App;
+export default DashboardComponent;
