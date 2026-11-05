@@ -385,7 +385,7 @@ const AppWrapper = observer(() => {
                                             width='24px'
                                             fill='var(--text-general)'
                                         />
-                                        <Localize i18n_default_text='Dashboard' />
+                                        <Localize i18n_default_text='Analyzer' />
                                     </>
                                 }
                                 id='id-dbot-dashboard'
