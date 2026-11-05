@@ -3,7 +3,6 @@ import { observer } from 'mobx-react-lite';
 import { ToastContainer } from 'react-toastify';
 import AuthLoadingWrapper from '@/components/auth-loading-wrapper';
 import { botNotification } from '@/components/bot-notification/bot-notification';
-import useLiveChat from '@/components/chat/useLiveChat';
 import ChunkLoader from '@/components/loader/chunk-loader';
 import { getUrlBase } from '@/components/shared';
 import TransactionDetailsModal from '@/components/transaction-details';
@@ -59,18 +58,6 @@ const AppContent = observer(() => {
         }
     }, []);
 
-    const livechat_client_information = {
-        is_client_store_initialized: client?.is_logged_in ? true : !!client,
-        is_logged_in: client?.is_logged_in,
-        loginid: client?.loginid,
-        currency: client?.currency,
-        residence: client?.residence,
-        email: '',
-        first_name: '',
-        last_name: '',
-    };
-
-    useLiveChat(livechat_client_information);
 
     // NOTE: Disabled Intercom until further notice
     // const token = V2GetActiveToken() ?? null;
@@ -131,10 +118,14 @@ const AppContent = observer(() => {
         ServerTime.init(common);
         app.setDBotEngineStores();
         ApiHelpers.setInstance(app.api_helpers_store);
-        import('@/utils/gtm').then(({ default: GTM }) => {
-            GTM.init(store);
-        });
     };
+
+    // Render the workspace even when the remote API is unavailable or slow.
+    // Market-dependent controls can initialize after the page becomes interactive.
+    React.useEffect(() => {
+        const fallback = window.setTimeout(() => setIsLoading(false), 3500);
+        return () => window.clearTimeout(fallback);
+    }, []);
 
     const changeActiveSymbolLoadingState = () => {
         init();
@@ -142,9 +133,9 @@ const AppContent = observer(() => {
         const retrieveActiveSymbols = () => {
             const { active_symbols } = ApiHelpers.instance;
 
-            active_symbols.retrieveActiveSymbols(true).then(() => {
-                setIsLoading(false);
-            });
+            Promise.resolve(active_symbols.retrieveActiveSymbols(true))
+                .catch(error => console.warn('Market symbols not ready:', error))
+                .finally(() => setIsLoading(false));
         };
 
         if (ApiHelpers?.instance?.active_symbols) {
@@ -152,12 +143,16 @@ const AppContent = observer(() => {
         } else {
             // This is a workaround to fix the issue where the active symbols are not loaded immediately
             // when the API is initialized. Should be replaced with RxJS pubsub
+            let attempts = 0;
             const intervalId = setInterval(() => {
                 if (ApiHelpers?.instance?.active_symbols) {
                     clearInterval(intervalId);
                     retrieveActiveSymbols();
+                } else if (++attempts >= 4) {
+                    clearInterval(intervalId);
+                    setIsLoading(false);
                 }
-            }, 1000);
+            }, 500);
         }
     };
 
