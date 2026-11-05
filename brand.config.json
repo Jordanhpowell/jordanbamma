@@ -1,33 +1,33 @@
 {
-    "brand_name": "YourBrand",
-    "brand_domain": "yourbrand.com",
+    "brand_name": "Powell Bamma",
+    "brand_domain": "jordanbamma.vercel.app",
     "brand_hostname": {
-        "staging": "staging.yourbrand.com/dashboard",
-        "production": "yourbrand.com/dashboard"
+        "staging": "jordanbamma.vercel.app",
+        "production": "jordanbamma.vercel.app"
     },
-    "domain_name": "YourBrand.com",
+    "domain_name": "Powell Bamma",
     "colors": {
-        "primary": "#3B82F6",
-        "secondary": "#64748b",
-        "tertiary": "#8b5cf6",
-        "success": "#10b981",
-        "danger": "#ef4444",
-        "warning": "#f59e0b",
-        "info": "#0ea5e9",
-        "neutral": "#6b7280",
-        "black": "#0f172a",
-        "white": "#ffffff",
+        "primary": "#16a765",
+        "secondary": "#8ba99a",
+        "tertiary": "#39d895",
+        "success": "#19c77a",
+        "danger": "#ef6262",
+        "warning": "#e8b66b",
+        "info": "#4ca6d8",
+        "neutral": "#91aa9d",
+        "black": "#061a12",
+        "white": "#f4fff8",
         "grey": {
-            "50": "#f8fafc",
-            "100": "#f1f5f9",
-            "200": "#e2e8f0",
-            "300": "#cbd5e1",
-            "400": "#94a3b8",
-            "500": "#64748b",
-            "600": "#475569",
-            "700": "#334155",
-            "800": "#1e293b",
-            "900": "#0f172a"
+            "50": "#f4fff8",
+            "100": "#e9f7ef",
+            "200": "#cde5d7",
+            "300": "#a9cbb7",
+            "400": "#83aa95",
+            "500": "#5e8971",
+            "600": "#3c6951",
+            "700": "#254b37",
+            "800": "#123222",
+            "900": "#061a12"
         }
     },
     "typography": {
@@ -79,7 +79,7 @@
         "css_variable_prefix": "--brand"
     },
     "platform": {
-        "name": "hughhbamma",
+        "name": "Powell Bamma",
         "i18n": {
             "default_language": "EN"
         },
@@ -89,10 +89,10 @@
         },
         "hostname": {
             "production": {
-                "com": "bot.yourbrand.com"
+                "com": "jordanbamma.vercel.app"
             },
             "staging": {
-                "com": "staging-bot.yourbrand.com"
+                "com": "jordanbamma.vercel.app"
             }
         },
         "auth2_url": {
