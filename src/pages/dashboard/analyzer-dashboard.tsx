@@ -57,8 +57,8 @@ const AnalyzerDashboard = observer(({ handleTabChange }: AnalyzerDashboardProps)
             <div className='brown-analyzer__intro'>
                 <div>
                     <div className='brown-analyzer__eyebrow'><span className='brown-analyzer__pulse' /> DERIV SYNTHETIC INDICES</div>
-                    <h1>Trading Analyzer</h1>
-                    <p>Analyze Deriv markets and manage your strategy workspace.</p>
+                    <h1>Powell Bamma Analyzer</h1>
+                    <p>Live market workspace for Deriv synthetic indices, strategies, and bot building.</p>
                 </div>
                 <div className='brown-analyzer__market'>
                     <label htmlFor='deriv-market-select'>Market</label>
