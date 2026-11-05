@@ -1,0 +1,9 @@
+{
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/((?!assets/|static/|js/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
