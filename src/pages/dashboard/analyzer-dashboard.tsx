@@ -137,6 +137,41 @@ const AnalyzerDashboard = observer(({ handleTabChange }: AnalyzerDashboardProps)
                 </div>
             </div>
 
+<section
+    id='elite-bots'
+    style={{
+        padding: '24px',
+        margin: '20px 0',
+        background: '#102a22',
+        border: '1px solid #287552',
+        borderRadius: '16px',
+    }}
+>
+    <h2 style={{ color: '#ffffff', fontSize: '26px' }}>
+        Elite Bots
+    </h2>
+
+    <p style={{ color: '#b7d8c6' }}>
+        Explore and build your elite trading strategies.
+    </p>
+
+    <button
+        type='button'
+        onClick={() => handleTabChange(1)}
+        style={{
+            background: '#20a364',
+            color: '#ffffff',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+        }}
+    >
+        Open Bot Builder
+    </button>
+</section>
+
             <div className='brown-live-strip'>
                 <div className='brown-live-strip__status'><i className={'brown-feed-dot brown-feed-dot--' + feedStatus} /> {feedStatus === 'live' ? 'LIVE MARKET FEED' : feedStatus.toUpperCase()}</div>
                 <span>{feedMessage}</span>
