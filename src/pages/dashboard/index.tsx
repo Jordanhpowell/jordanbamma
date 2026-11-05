@@ -1,15 +1,11 @@
-import { observer } from 'mobx-react-lite';
-import { useStore } from '../../hooks/useStore';
+import AnalyzerDashboard from './analyzer-dashboard';
 
-const Dashboard = observer(() => {
-    const { ui } = useStore();
-    const { isAuthorized } = ui;
-    return (
-        <div style={{ paddingTop: '12px' }}>
-            <div>Dashboard observing from mobx store.</div>
-            <div>isAuthorized: {isAuthorized.toString()}</div>
-        </div>
-    );
-});
+type DashboardProps = {
+    handleTabChange: (active_number: number) => void;
+};
+
+const Dashboard = ({ handleTabChange }: DashboardProps) => (
+    <AnalyzerDashboard handleTabChange={handleTabChange} />
+);
 
 export default Dashboard;
